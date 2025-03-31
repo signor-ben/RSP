@@ -2,42 +2,25 @@
 using namespace std;
 
 vector<int> partitionLabels(string s) {
-    int it = 0;
-    int start_interval = 0;
-    int curr_interval = 0;
+    unordered_map<char, int> lastOccurrence;
+    vector<int> result;
 
-    vector<int> partitions;
-    unordered_set<char> seen;
+    // Step 1: Store last occurrence of each character
+    for (int i = 0; i < s.size(); i++) {
+        lastOccurrence[s[i]] = i;
+    }
 
-    while(it < s.size())
-    {
-        if(!seen.count(s[it]))
-        {
-            int last;
-            for(int i = it;i<s.size();i++)
-                if(s[i] == s[it])
-                    last = i;
-            seen.insert(s[it]);
-            curr_interval = max(curr_interval,last);
-            if(it == curr_interval)
-            {
-                partitions.push_back(curr_interval-start_interval+1);
-                start_interval = it+1;
-            }
-            it++;
-        }else
-        {
-            if(it == curr_interval)
-            {
-                partitions.push_back(curr_interval-start_interval+1);
-                it++;
-                start_interval = it;
-            } else
-                it++;
+    // Step 2: Merge partitions in one pass
+    int start = 0, end = 0;
+    for (int i = 0; i < s.size(); i++) {
+        end = max(end, lastOccurrence[s[i]]);
+        if (i == end) {
+            result.push_back(end - start + 1);
+            start = i + 1;
         }
     }
 
-    return partitions;
+    return result;
 }
 
 void test(string s, vector<int> expected)
@@ -50,7 +33,7 @@ void test(string s, vector<int> expected)
         cout << "FAILED" << endl;
         cout << "EXPECTED: ";
         for(int e : expected) cout << e;
-        cout << "RETURNED: ";
+        cout << " RETURNED: ";
         for(int e : result) cout << e;
         cout << endl;
     }
@@ -59,7 +42,9 @@ void test(string s, vector<int> expected)
 int main()
 {
     test("ababcc",{4,2});
-    test("ababcc",{3,2});
+    test("ababcbacadefegdehijhklij", {9,7,8});
+    test("eccbbbbdec",{10});
+    test("xabababab",{1,8});
 
     return 0;
 }
